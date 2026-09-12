@@ -1,0 +1,15 @@
+{
+  "name": "dvi-studio-site",
+  "version": "1.0.0",
+  "description": "DVI Studio - Corporate Diwali Gift Box Builder",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"No tests available\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
