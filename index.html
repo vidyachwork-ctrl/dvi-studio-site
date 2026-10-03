@@ -167,6 +167,21 @@ section{padding:88px 0}
 .send{display:flex;flex-direction:column;gap:10px;margin-top:20px}
 .send .btn{width:100%}
 .err{color:#A3262F;font-size:14px;min-height:1.2em}
+.summary{border:1px solid var(--line);background:var(--cream);border-radius:12px;padding:16px 18px;margin-bottom:20px;font-size:15px}
+.summary h4{font-family:var(--display);font-weight:400;font-size:19px;color:var(--wine);margin:0 0 8px}
+.summary ol{margin:0 0 10px;padding-left:20px}
+.summary li{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-variant-numeric:tabular-nums}
+.summary li span:last-child{white-space:nowrap;color:var(--muted)}
+.summary .tot{display:flex;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding-top:8px;margin-top:4px;font-variant-numeric:tabular-nums}
+.summary .tot.main{font-weight:600;color:var(--wine)}
+.summary .none{color:var(--muted);margin:0}
+.summary .none a{color:var(--wine)}
+.summary .edit{font-size:13px;color:var(--wine);margin-top:8px;display:inline-block}
+.hint{font-size:12.5px;color:var(--muted)}
+.sent{padding:28px;border:1px solid #BFDCC9;background:#F1F8F3;border-radius:12px}
+.sent h3{color:#2F7A4F}
+.sent p{margin-top:8px;color:var(--ink)}
+.btn[disabled]{opacity:.6;cursor:wait}
 
 /* Steps + terms */
 .how{background:var(--plum);color:var(--cream)}
@@ -301,26 +316,33 @@ footer .order-early{color:var(--gold);font-size:16px}
           <h3>Send your enquiry</h3>
           <p class="sub">Tell us your quantity, budget per gift and delivery date, so we can plan making time. We'll suggest packaging options and share the final rate per hamper.</p>
           <form id="enquiry" novalidate>
+            <div class="summary" id="summary" aria-live="polite"></div>
             <div class="two">
-              <div class="field"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" required></div>
+              <div class="field"><label for="f-name">Your name *</label><input id="f-name" autocomplete="name" required></div>
               <div class="field"><label for="f-co">Company</label><input id="f-co" autocomplete="organization"></div>
             </div>
             <div class="two">
-              <div class="field"><label for="f-phone">Phone</label><input id="f-phone" type="tel" autocomplete="tel"></div>
+              <div class="field"><label for="f-phone">Phone number *</label><input id="f-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="98765 43210" required></div>
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email"></div>
             </div>
             <div class="two">
-              <div class="field"><label for="f-budget">Budget per gift (₹)</label><input id="f-budget" inputmode="numeric"></div>
+              <div class="field"><label for="f-budget">Budget per gift (₹)</label><input id="f-budget" inputmode="numeric"><small class="hint" id="budget-hint">Filled in from your hamper estimate. Change it if your budget is different.</small></div>
               <div class="field"><label for="f-date">Delivery date</label><input id="f-date" type="date"></div>
             </div>
             <div class="field"><label for="f-msg">Anything else</label><textarea id="f-msg" placeholder="Box colour, branding, favourite sweets, custom pieces…"></textarea></div>
+            <input type="checkbox" name="botcheck" id="botcheck" tabindex="-1" autocomplete="off" style="display:none">
             <p class="err" id="err" role="alert"></p>
             <div class="send">
-              <button class="btn btn-wine" type="submit">Email my enquiry</button>
+              <button class="btn btn-wine" type="submit" id="send-btn">Send my enquiry</button>
               <a class="btn btn-gold" id="wa" href="https://wa.me/917907152201" target="_blank" rel="noopener">Send on WhatsApp</a>
               <a class="btn" style="border-color:var(--line);color:var(--ink)" href="tel:+917907152201">Call +91 79071 52201</a>
             </div>
           </form>
+          <div id="sent" class="sent" hidden tabindex="-1">
+            <h3>Enquiry sent</h3>
+            <p>Thank you! We've received your hamper and contact details. We'll call or message you soon with packaging options and your final per-hamper rate.</p>
+            <button class="btn" type="button" id="send-again" style="border-color:var(--wine);color:var(--wine);margin-top:18px">Send another enquiry</button>
+          </div>
         </div>
       </div>
     </div>
@@ -378,6 +400,8 @@ footer .order-early{color:var(--gold);font-size:16px}
 <script>
 (function(){
   var EMAIL = "ch.vidya@dvistudio.com";
+  // Get your free key at https://web3forms.com (enter ch.vidya@dvistudio.com). Paste it between the quotes below.
+  var WEB3FORMS_KEY = "PASTE-YOUR-ACCESS-KEY-HERE";
   var PHONE_WA = "917907152201";
   var CARD_PRICE = 15;
 
@@ -454,8 +478,9 @@ footer .order-early{color:var(--gold);font-size:16px}
     var qty = Math.max(1, parseInt($("qty").value,10)||1);
     var rate = qty>=50?0.10:(qty>=25?0.05:0);
     var card = $("gcard").checked ? CARD_PRICE : 0;
-    var perHamper = sub*(1-rate) + card;
-    return {pieces:pieces, sub:sub, qty:qty, rate:rate, card:card, perHamper:perHamper, order:perHamper*qty};
+    var afterDisc = Math.round(sub*(1-rate));
+    var perHamper = afterDisc + card;
+    return {pieces:pieces, sub:sub, qty:qty, rate:rate, disc:sub-afterDisc, card:card, perHamper:perHamper, order:perHamper*qty};
   }
 
   function render(){
@@ -473,7 +498,7 @@ footer .order-early{color:var(--gold);font-size:16px}
     var c = calc();
     var t = '<div class="row"><span class="lbl">Pieces in each hamper</span><span>'+c.pieces+'</span></div>'+
             '<div class="row"><span class="lbl">Pieces subtotal</span><span>'+rupee(c.sub)+'</span></div>';
-    if(c.rate) t += '<div class="row disc"><span>Bulk saving ('+(c.rate*100)+'% off)</span><span>−'+rupee(c.sub*c.rate)+'</span></div>';
+    if(c.rate) t += '<div class="row disc"><span>Bulk saving ('+(c.rate*100)+'% off)</span><span>−'+rupee(c.disc)+'</span></div>';
     if(c.card) t += '<div class="row"><span class="lbl">Greeting card</span><span>'+rupee(c.card)+'</span></div>';
     t += '<div class="row big"><span class="lbl">Estimate per hamper</span><span>'+rupee(c.perHamper)+'</span></div>';
     if(c.qty>1) t += '<div class="row"><span class="lbl">'+c.qty+' hampers</span><span>'+rupee(c.order)+'</span></div>';
@@ -483,7 +508,28 @@ footer .order-early{color:var(--gold);font-size:16px}
     $("bar-count").textContent = c.pieces + (c.pieces===1?" piece":" pieces");
     $("bar-total").textContent = rupee(c.perHamper);
     updateBar(c.pieces);
+    renderSummary(c);
     $("wa").href = "https://wa.me/"+PHONE_WA+"?text="+encodeURIComponent(message());
+  }
+
+  var budgetTouched=false;
+  function renderSummary(c){
+    var ids=Object.keys(state), el=$("summary");
+    if(!ids.length){
+      el.innerHTML='<h4>Your hamper</h4><p class="none">No pieces added yet. <a href="#collection">Add pieces</a> or start with a <a href="#ideas">hamper idea</a>.</p>';
+    } else {
+      el.innerHTML='<h4>Your hamper</h4><ol>'+ids.map(function(id){
+        return '<li><span>'+BY[id].name+'</span><span>'+rupee(BY[id].price)+' × '+state[id]+' = '+rupee(BY[id].price*state[id])+'</span></li>';
+      }).join("")+'</ol>'+
+      '<div class="tot"><span>Items cost per hamper</span><span>'+rupee(c.sub)+'</span></div>'+
+      (c.rate?'<div class="tot"><span>Bulk saving ('+(c.rate*100)+'%)</span><span>−'+rupee(c.disc)+'</span></div>':'')+
+      (c.card?'<div class="tot"><span>Greeting card</span><span>'+rupee(c.card)+'</span></div>':'')+
+      '<div class="tot main"><span>Estimate per hamper</span><span>'+rupee(c.perHamper)+'</span></div>'+
+      '<div class="tot"><span>Number of boxes</span><span>'+c.qty+'</span></div>'+
+      '<div class="tot main"><span>Estimate for all boxes</span><span>'+rupee(c.order)+'</span></div>'+
+      '<a class="edit" href="#build">Change pieces or number of boxes</a>';
+    }
+    if(!budgetTouched){ $("f-budget").value = ids.length ? String(c.perHamper) : ""; }
   }
 
   var buildInView=false;
@@ -540,13 +586,55 @@ footer .order-early{color:var(--gold);font-size:16px}
 
   $("enquiry").addEventListener("submit",function(e){
     e.preventDefault();
-    var err=$("err");
-    if(!$("f-name").value.trim()){ err.textContent="Add your name so we know who to reply to."; $("f-name").focus(); return; }
-    if(!$("f-phone").value.trim() && !$("f-email").value.trim()){ err.textContent="Add a phone number or email so we can send your rate."; $("f-phone").focus(); return; }
+    var err=$("err"), btn=$("send-btn");
+    var f=function(id){return $(id).value.trim();};
+    if(!f("f-name")){ err.textContent="Add your name so we know who to contact."; $("f-name").focus(); return; }
+    var digits=f("f-phone").replace(/\D/g,"");
+    if(digits.length<10){ err.textContent="Add your phone number (at least 10 digits) so we can call you."; $("f-phone").focus(); return; }
+    if(f("f-email") && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f("f-email"))){ err.textContent="Check your email address, or leave it blank."; $("f-email").focus(); return; }
+    if(!Object.keys(state).length){ err.textContent="Add at least one piece to your hamper first."; return; }
     err.textContent="";
-    var subj="Diwali hamper enquiry"+($("f-co").value.trim()?" – "+$("f-co").value.trim():"");
-    window.location.href="mailto:"+EMAIL+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(message());
+
+    var c=calc();
+    var hamper=Object.keys(state).map(function(id,n){ return (n+1)+". "+BY[id].name+" — "+rupee(BY[id].price)+" × "+state[id]+" = "+rupee(BY[id].price*state[id]); }).join("\n");
+    var data={
+      access_key:WEB3FORMS_KEY,
+      subject:"New hamper enquiry from "+f("f-name")+(f("f-co")?" ("+f("f-co")+")":""),
+      from_name:"DVI Studio website",
+      botcheck:$("botcheck").checked,
+      "Name":f("f-name"),
+      "Phone":f("f-phone"),
+      "Email":f("f-email")||"Not given",
+      "Company":f("f-co")||"Not given",
+      "Items in each hamper":hamper,
+      "Total pieces in each hamper":c.pieces,
+      "Items cost per hamper":rupee(c.sub),
+      "Bulk saving":c.rate?(c.rate*100)+"% off (−"+rupee(c.disc)+" per hamper)":"None (under 25 boxes)",
+      "Greeting card":c.card?"Yes (₹15 per hamper)":"No",
+      "Estimate per hamper":rupee(c.perHamper),
+      "Number of boxes needed":c.qty,
+      "Estimate for all boxes":rupee(c.perHamper)+" × "+c.qty+" = "+rupee(c.order),
+      "Note":"Estimates exclude GST and packaging.",
+      "Budget per gift":f("f-budget")?"₹"+f("f-budget"):"Not given",
+      "Delivery date":f("f-date")||"Not given",
+      "Notes":f("f-msg")||"None"
+    };
+    if(f("f-email")) data.replyto=f("f-email");
+
+    btn.disabled=true; btn.textContent="Sending…";
+    fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(data)})
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(!res.success) throw new Error(res.message||"failed");
+        $("enquiry").hidden=true; $("sent").hidden=false; $("sent").focus();
+      })
+      .catch(function(){
+        err.textContent="Your enquiry didn't go through. Please try again, or call or WhatsApp us on +91 79071 52201.";
+      })
+      .then(function(){ btn.disabled=false; btn.textContent="Send my enquiry"; });
   });
+  $("f-budget").addEventListener("input",function(){ budgetTouched = this.value.trim()!==""; $("budget-hint").textContent = budgetTouched ? "Your own budget. Clear it to use the hamper estimate again." : "Filled in from your hamper estimate. Change it if your budget is different."; });
+  $("send-again").addEventListener("click",function(){ $("sent").hidden=true; $("enquiry").hidden=false; });
 
   render();
 })();
