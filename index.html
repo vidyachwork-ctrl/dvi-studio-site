@@ -7,7 +7,7 @@
 <meta name="description" content="Handcrafted resin décor, soy-wax candles and gourmet add-ons, curated into Diwali hampers for your teams and clients. Mix and match any pieces. No minimum order.">
 <meta property="og:title" content="DVI Studio · Gifts that glow this Diwali">
 <meta property="og:description" content="Handcrafted Diwali hampers for teams and clients. Build your own from resin décor, soy-wax candles and gourmet add-ons.">
-<meta property="og:image" content="images/hero-lotus-tealight.jpg">
+<meta property="og:image" content="images/hero-lotus-pink-blue.jpg">
 <meta name="theme-color" content="#2A0C22">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -321,9 +321,8 @@ footer{background:linear-gradient(180deg,#24091A,#170612)}
           </g>
         </svg>
         <div class="arch">
-          <img src="images/hero-lotus-tealight.jpg" alt="Handmade pink and blue lotus tealight holders with gold edging, candles inside" width="1200" height="869" fetchpriority="high">
+          <img src="images/hero-lotus-pink-blue.jpg?v=4" alt="Handmade pink and blue lotus tealight holders with gold edging, candles inside" width="1200" height="869" fetchpriority="high">
         </div>
-        <div class="badge" aria-label="Prices from 85 rupees"><div><span>Prices from</span><b>₹85</b></div></div>
         <div class="glow" aria-hidden="true"></div>
       </div>
     </div>
@@ -484,7 +483,7 @@ footer{background:linear-gradient(180deg,#24091A,#170612)}
 
   var CATS = [
     {title:"Home décor & tealight holders", items:[
-      {id:"lotus-tealight",name:"Lotus Tealight Holder",spec:"Eco-resin · 4.62″ × 1.77″",desc:"Lotus petals with hand-painted gold edging.",price:200,img:"lotus-tealight-holder.jpg"},
+      {id:"lotus-tealight",name:"Lotus Tealight Holder",spec:"Eco-resin · 4.62″ × 1.77″",desc:"Lotus petals with hand-painted gold edging.",price:200,img:"lotus-tealight-pink-blue.jpg"},
       {id:"mandir-single",name:"Mini Mandir",spec:"Eco-resin · 12.6 × 4.6 cm",desc:"Elegant single-colour finish.",price:200,img:"mini-mandir-single.jpg"}
     ]},
     {title:"Trays, coasters & accessories", items:[
@@ -505,16 +504,16 @@ footer{background:linear-gradient(180deg,#24091A,#170612)}
       {id:"ferrero",name:"Gift Box (Ferrero)",spec:"Acrylic & chocolates · 3 pcs",desc:"Clear box with chocolates.",price:170,img:"ferrero-gift-box.jpg"}
     ]},
     {title:"Vases, stands & mugs", note:"Vases come at two prices: <b>Essential</b> (without plants) or <b>Artisan</b> (with plants or dried flowers). Photos show the Artisan version.", items:[
-      {id:"donut-vase",name:"Donut Vase",spec:"Eco-resin",desc:"Soft pink ring vase. Artisan version comes with dried pampas grass.",img:"donut-vase-pampas.jpg",variants:[
+      {id:"donut-vase",name:"Donut Vase",spec:"Eco-resin",desc:"Soft pink ring vase. Artisan version comes with dried pampas grass.",img:"donut-vase-pampas-hd.jpg",variants:[
         {id:"donut-vase",label:"Without plant",price:450},
         {id:"donut-vase-pampas",label:"With pampas grass",price:610}
       ]},
-      {id:"face-vase",name:"Face Vase",spec:"Eco-resin",desc:"A perfect home for small plants like succulents.",img:"face-vase-succulent.jpg",variants:[
+      {id:"face-vase",name:"Face Vase",spec:"Eco-resin",desc:"A perfect home for small plants like succulents.",img:"face-vase-succulent-hd.jpg",variants:[
         {id:"face-vase",label:"Without plant",price:250},
         {id:"face-vase-succulent",label:"With succulent",price:512}
       ]},
-      {id:"purple-stand",name:"Purple Stand",spec:"Epoxy resin",desc:"Faceted deep-purple stand for pens, brushes or a small plant.",price:250,img:"purple-epoxy-stand.jpg"},
-      {id:"ceramic-mug",name:"Ceramic Mug",spec:"Ceramic",desc:"Classic cream mug for desk or home.",price:120,img:"ceramic-mug.jpg"}
+      {id:"purple-stand",name:"Purple Stand",spec:"Epoxy resin",desc:"Faceted deep-purple stand for pens, brushes or a small plant.",price:250,img:"purple-epoxy-stand-hd.jpg"},
+      {id:"ceramic-mug",name:"Ceramic Mug",spec:"Ceramic",desc:"Classic cream mug for desk or home.",price:120,img:"ceramic-mug-hd.jpg"}
     ]}
   ];
 
@@ -545,7 +544,7 @@ footer{background:linear-gradient(180deg,#24091A,#170612)}
         }).join("")
         : '<div class="buy"><span class="price">'+rupee(i.price)+(i.each?' <small>each</small>':'')+'</span><span class="ctl" data-id="'+i.id+'"></span></div>';
       return '<article class="card">'+
-        '<div class="pic"><img src="images/'+i.img+'" alt="'+i.name+'" loading="lazy" width="1000" height="1000"'+(i.pos?' style="object-position:'+i.pos+'"':'')+'></div>'+
+        '<div class="pic"><img src="images/'+i.img+'?v=4" alt="'+i.name+'" loading="lazy" width="1000" height="1000"'+(i.pos?' style="object-position:'+i.pos+'"':'')+'></div>'+
         '<h4>'+i.name+'</h4><p class="spec">'+i.spec+'</p><p class="desc">'+i.desc+'</p>'+buy+'</article>';
     }).join("")+'</div></div>';
   }).join("");
